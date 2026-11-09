@@ -1,0 +1,5 @@
+.env
+sessions/
+node_modules/
+*.log
+qr.html
