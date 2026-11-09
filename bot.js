@@ -281,9 +281,24 @@ async function processMessage(sock, state, text, msg, media) {
         .from('sk_municipalities')
         .select('id, name, display_name')
         .eq('province_id', state.data.provinceId)
-        .ilike('name', `%${text}%`)
+        .or(`name.ilike.%${text}%,display_name.ilike.%${text}%`)
         .limit(8)
+      if (error) console.error('Municipality search error:', error.message, '| provinceId:', state.data.provinceId, '| text:', text)
       if (error || !results || results.length === 0) {
+        // Fallback: show all municipalities for this province
+        const { data: all } = await supabase
+          .from('sk_municipalities')
+          .select('id, name, display_name')
+          .eq('province_id', state.data.provinceId)
+          .order('name')
+          .limit(15)
+        if (all && all.length > 0) {
+          const list = all.map((m, i) => `${i + 1}. ${m.name}`).join('\n')
+          return {
+            reply: `No match for "${text}". Here are all municipalities in ${state.data.provinceName} — reply with the number:\n\n${list}`,
+            newState: { ...state, step: 'shop_municipality_pick', data: { ...state.data, _muniResults: all } }
+          }
+        }
         return { reply: `No municipality found matching "*${text}*" in ${state.data.provinceName}. Try a different spelling:`, newState: state }
       }
       if (results.length === 1) {
