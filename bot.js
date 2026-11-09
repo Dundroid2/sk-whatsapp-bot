@@ -30,7 +30,8 @@ async function handleMessage(sock, msg) {
   const text = extractText(msg)
   if (!text) return
 
-  const state = getState(jid)
+  let state = getState(jid)
+  if (!state.data.phone) state = { ...state, data: { ...state.data, phone: jid.replace(/@.*/, '') } }
   const result = await processMessage(state, text)
 
   setState(jid, result.newState)
@@ -327,7 +328,7 @@ async function saveShopApplication(data) {
     last_name: data.lastName,
     id_number: data.idNumber,
     nationality: data.nationality || 'za',
-    phone: null,
+    phone: data.phone || 'unknown',
     email: null,
     biz_name: data.bizName || null,
     cipc: data.cipc || 'unsure',
