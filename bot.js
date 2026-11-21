@@ -147,7 +147,8 @@ async function processMessage(sock, state, text, msg, media) {
 
     // ─── IDLE ────────────────────────────────────────────────────────────────
     case 'idle': {
-      if (/spaza|shop|register my|open a|my shop|compliance|certificate/i.test(lower)) {
+      const isSummit = /summit|rsvp|attend|expo/i.test(lower)
+      if (!isSummit && /spaza|shop|register my|open a|my shop|compliance|certificate/i.test(lower)) {
         return {
           reply: [
             `👋 Welcome to *Spaza Kulture!*`,
@@ -160,7 +161,7 @@ async function processMessage(sock, state, text, msg, media) {
         return {
           reply: [
             `👋 Welcome to *Spaza Kulture!*`,
-            `🎉 *Spaza Kulture Summit & Expo*\n📅 08 December 2026\n📍 City of Tshwane\n⏰ 08:00–17:00\n\nLet's get you registered — it only takes 2 minutes.\n\nWhat is your *first name*?`
+            `🎉 *Spaza Kulture Summit & Expo*\n📅 Friday, 29 January 2027\n📍 State Theatre, City of Tshwane\n🎟️ Free entry on registration\n\nLet's get you registered — it only takes 2 minutes.\n\nWhat is your *first name*?`
           ],
           newState: { step: 'rsvp_firstname', data: {} }
         }
@@ -588,7 +589,7 @@ async function saveRsvp(data) {
   const ref = `RSVP-WA-${new Date().getFullYear()}-${Math.floor(Math.random() * 90000 + 10000)}`
 
   const { error } = await supabase.from('event_rsvps').insert({
-    event_name: 'Spaza Kulture Summit - Tshwane - 08 Dec 2026',
+    event_name: 'Spaza Kulture Summit - Tshwane - 29 Jan 2027',
     ref_number: ref,
     first_name: data.firstName,
     last_name: data.lastName,
@@ -611,7 +612,7 @@ async function saveRsvp(data) {
 
   return {
     reply: [
-      `✅ *You're registered!*\n\n🎟️ *Ref: ${ref}*\n\n📅 08 December 2026\n📍 City of Tshwane\n⏰ 08:00–17:00\n\nWe'll send venue confirmation and final details soon. See you there!`,
+      `✅ *You're registered!*\n\n🎟️ *Ref: ${ref}*\n\n📅 Friday, 29 January 2027\n📍 State Theatre, City of Tshwane\n\nWe'll send your final details and start time soon. See you there!`,
       `📲 Know someone who should attend?\nShare this link:\nspazakulture.co.za/event-rsvp.html`
     ],
     newState: { step: 'idle', data: {} }
@@ -631,7 +632,7 @@ Spaza Kulture supports township entrepreneurs and spaza shop owners: formalisati
 
 Two services:
 1. SHOP REGISTRATION — free help to open or formalise a spaza shop. Say: "Reply *spaza shop* to get started!"
-2. SUMMIT RSVP — Spaza Kulture Summit, 08 December 2026, City of Tshwane. Say: "Reply *summit* to register!"
+2. SUMMIT RSVP — Spaza Kulture Summit, Friday 29 January 2027, State Theatre, City of Tshwane. Say: "Reply *summit* to register!"
 
 Contact: info@spazakulture.co.za | 073 900 0321
 
