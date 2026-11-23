@@ -613,7 +613,8 @@ async function saveRsvp(data) {
   return {
     reply: [
       `✅ *You're registered!*\n\n🎟️ *Ref: ${ref}*\n\n📅 Friday, 29 January 2027\n📍 State Theatre, City of Tshwane\n\nWe'll send your final details and start time soon. See you there!`,
-      `📲 Know someone who should attend?\nShare this link:\nspazakulture.co.za/event-rsvp.html`
+      `📲 Know someone who should attend?\nShare this link:\nspazakulture.co.za/event-rsvp.html`,
+      `📣 Get summit updates and the Spaza Kulture Magazine on our WhatsApp channel:\nspazakulture.co.za/channel`
     ],
     newState: { step: 'idle', data: {} }
   }
