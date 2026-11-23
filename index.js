@@ -72,6 +72,8 @@ h2{margin-bottom:8px}p{color:#aaa;margin-bottom:24px}img{border:4px solid #fff;b
       if (msg.key.fromMe || !msg.message) continue
       // Skip group messages — only handle direct chats
       if (msg.key.remoteJid.endsWith('@g.us')) continue
+      // Skip channels, status and broadcast lists — never reply there
+      if (/@newsletter$|@broadcast$/.test(msg.key.remoteJid)) continue
       try {
         await handleMessage(sock, msg)
       } catch (err) {

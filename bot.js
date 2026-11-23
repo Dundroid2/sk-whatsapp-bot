@@ -116,6 +116,7 @@ async function uploadDoc(sock, msg, ref, docType) {
 
 async function handleMessage(sock, msg) {
   const jid = msg.key.remoteJid
+  if (!jid || !/@(s\.whatsapp\.net|lid)$/.test(jid)) return // direct chats only
   const text = extractText(msg)
   const media = hasMedia(msg)
 
@@ -147,8 +148,18 @@ async function processMessage(sock, state, text, msg, media) {
 
     // ─── IDLE ────────────────────────────────────────────────────────────────
     case 'idle': {
-      const isSummit = /summit|rsvp|attend|expo/i.test(lower)
-      if (!isSummit && /spaza|shop|register my|open a|my shop|compliance|certificate/i.test(lower)) {
+      const pick = lower.trim()
+      const isSummit = /summit|rsvp|attend|seat|expo/i.test(lower) || /^2\b/.test(pick)
+      const isShop = !isSummit && (/^1\b/.test(pick) || /spaza|shop|compliance|certificate|open a/i.test(lower))
+
+      if (/^3\b/.test(pick) && !isSummit) {
+        return { reply: [`📣 *Follow our WhatsApp channel*\n\nShop tips, summit updates and the Spaza Kulture Magazine:\nspazakulture.co.za/channel\n\n(Channels are for following only. To register, reply *menu*.)`], newState: state }
+      }
+      if (/^4\b/.test(pick) && !isSummit) {
+        return { reply: [`🙋 *Speak to someone*\n\nEmail us at info@spazakulture.co.za and the team will get back to you.\n\nReply *menu* to see the options again.`], newState: state }
+      }
+
+      if (isShop) {
         return {
           reply: [
             `👋 Welcome to *Spaza Kulture!*`,
@@ -157,13 +168,21 @@ async function processMessage(sock, state, text, msg, media) {
           newState: { step: 'shop_firstname', data: {} }
         }
       }
-      if (/register|rsvp|attend|summit|event|join|book/i.test(lower)) {
+      if (isSummit) {
         return {
           reply: [
             `👋 Welcome to *Spaza Kulture!*`,
             `🎉 *Spaza Kulture Summit & Expo*\n📅 Friday, 29 January 2027\n📍 State Theatre, City of Tshwane\n🎟️ Free entry on registration\n\nLet's get you registered — it only takes 2 minutes.\n\nWhat is your *first name*?`
           ],
           newState: { step: 'rsvp_firstname', data: {} }
+        }
+      }
+      if (/^(hi|hello|hey|hola|sawubona|molo|dumela|menu|start|help|register|join|book|event|options?)\W*$/i.test(pick) || pick.split(/\s+/).length <= 3) {
+        return {
+          reply: [
+            `👋 Welcome to *Spaza Kulture!*\n\nWhat would you like to do? Reply with a number:\n\n*1* 🏪 Register my spaza shop\n*2* 📅 Book a seat at the Summit (29 Jan 2027, State Theatre, Tshwane)\n*3* 📣 Follow our WhatsApp channel\n*4* 🙋 Speak to someone`
+          ],
+          newState: state
         }
       }
       return aiResponse(state, text)
@@ -644,7 +663,7 @@ Keep replies SHORT — max 3 lines. Plain text only, no markdown except *bold*.`
   } catch (err) {
     console.error('Claude error:', err.message)
     return {
-      reply: `Hi! I'm the Spaza Kulture assistant. Reply *spaza shop* to register your shop, or *summit* to attend the event.`,
+      reply: `Hi! I'm the Spaza Kulture assistant. Reply *menu* to see your options: 1 shop registration, 2 summit seat, 3 channel, 4 speak to someone.`,
       newState: { step: 'idle', data: {} }
     }
   }
